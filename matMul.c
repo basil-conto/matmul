@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include 
-
+#include <pthread.h>
 /*
   Structure that describes what a complex number is.
   real - corresponds to the real part of a complex number.
