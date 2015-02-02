@@ -16,7 +16,9 @@
   debugging information is written out. To put the program into
   debugging mode, uncomment the following line: 
 */
-/*#define DEBUGGING(_x) _x */
+/*
+  #define DEBUGGING(_x) _x 
+*/
 /* 
   To stop the printing of debugging information, use the following line: 
 */
@@ -44,7 +46,9 @@ void write_out(struct complex ** a, int dim1, int dim2)
 }
 
 
-/* create new empty matrix */
+/* 
+  Create new empty matrix 
+*/
 struct complex ** new_empty_matrix(int dim1, int dim2)
 {
   struct complex ** result = malloc(sizeof(struct complex*) * dim1);
@@ -59,7 +63,9 @@ struct complex ** new_empty_matrix(int dim1, int dim2)
   return result;
 }
 
-/* take a copy of the matrix and return in a newly allocated matrix */
+/* 
+  Take a copy of the matrix and return in a newly allocated matrix
+*/
 struct complex ** copy_matrix(struct complex ** source_matrix, int dim1, int dim2)
 {
   int i, j;
@@ -75,7 +81,9 @@ struct complex ** copy_matrix(struct complex ** source_matrix, int dim1, int dim
   return result;
 }
 
-/* create a matrix and fill it with random numbers */
+/* 
+  Create a matrix and fill it with random numbers 
+*/
 struct complex ** gen_random_matrix(int dim1, int dim2)
 {
   struct complex ** result;
@@ -85,12 +93,16 @@ struct complex ** gen_random_matrix(int dim1, int dim2)
 
   result = new_empty_matrix(dim1, dim2);
 
-  /* use the microsecond part of the current time as a pseudorandom seed */
+  /* 
+    Use the microsecond part of the current time as a pseudo-random seed
+  */
   gettimeofday(&seedtime, NULL);
   seed = seedtime.tv_usec;
   srandom(seed);
 
-  /* fill the matrix with random numbers */
+  /* 
+    Fill the matrix with random numbers 
+  */
   for ( i = 0; i < dim1; i++ )
   {
     for ( j = 0; j < dim2; j++ )
@@ -107,7 +119,9 @@ struct complex ** gen_random_matrix(int dim1, int dim2)
   return result;
 }
 
-/* check the sum of absolute differences is within reasonable epsilon */
+/* 
+  Check the sum of absolute differences is within reasonable epsilon
+*/
 void check_result(struct complex ** result, struct complex ** control, int dim1, int dim2)
 {
   int i, j;
@@ -132,17 +146,22 @@ void check_result(struct complex ** result, struct complex ** control, int dim1,
   }
 }
 
-/* multiply matrix A times matrix B and put result in matrix C */
+/* 
+  Multiply matrix A times matrix B and put result in matrix C
+*/
 void matmul(struct complex ** A, struct complex ** B, struct complex ** C, int a_dim1, int a_dim2, int b_dim2)
 {
   int i, j, k;
 
-  for ( i = 0; i < a_dim1; i++ ) {
-    for( j = 0; j < b_dim2; j++ ) {
+  for ( i = 0; i < a_dim1; i++ ) 
+  {
+    for( j = 0; j < b_dim2; j++ ) 
+    {
       struct complex sum;
       sum.real = 0.0;
       sum.imag = 0.0;
-      for ( k = 0; k < a_dim2; k++ ) {
+      for ( k = 0; k < a_dim2; k++ ) 
+      {
         // the following code does: sum += A[i][k] * B[k][j];
         struct complex product;
         product.real = A[i][k].real * B[k][j].real - A[i][k].imag * B[k][j].imag;
@@ -155,11 +174,15 @@ void matmul(struct complex ** A, struct complex ** B, struct complex ** C, int a
   }
 }
 
-/* the fast version of matmul written by the team */
+/* 
+  The fast version of matmul written by the team
+*/
 void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C, int a_dim1, int a_dim2, int b_dim2)
 {
-  // this call here is just dummy code
-  // insert your own code instead
+  /* 
+    This call here is just dummy code
+    insert your own code instead
+  */
   matmul(A, B, C, a_dim1, a_dim2, b_dim2);
 }
 
@@ -185,7 +208,9 @@ int main(int argc, char ** argv)
     b_dim2 = atoi(argv[4]);
   }
 
-  /* check the matrix sizes are compatible */
+  /* 
+    Check the matrix sizes are compatible
+  */
   if ( a_dim2 != b_dim1 )
   {
     fprintf(stderr,
@@ -194,7 +219,9 @@ int main(int argc, char ** argv)
     exit(1);
   }
 
-  /* allocate the matrices */
+  /* 
+    Allocate the matrices
+  */
   A = gen_random_matrix(a_dim1, a_dim2);
   B = gen_random_matrix(b_dim1, b_dim2);
   C = new_empty_matrix(a_dim1, b_dim2);
@@ -202,16 +229,24 @@ int main(int argc, char ** argv)
 
   DEBUGGING(write_out(A, a_dim1, a_dim2));
 
-  /* use a simple matmul routine to produce control result */
+  /* 
+    Use a simple matmul routine to produce control result 
+  */
   matmul(A, B, control_matrix, a_dim1, a_dim2, b_dim2);
 
-  /* record starting time */
+  /* 
+    Record starting time 
+  */
   gettimeofday(&start_time, NULL);
 
-  /* perform matrix multiplication */
+  /* 
+    Perform matrix multiplication
+  */
   team_matmul(A, B, C, a_dim1, a_dim2, b_dim2);
 
-  /* record finishing time */
+  /* 
+    Record finishing time 
+  */
   gettimeofday(&stop_time, NULL);
   mul_time = (stop_time.tv_sec - start_time.tv_sec) * 1000000L +
   (stop_time.tv_usec - start_time.tv_usec);
@@ -219,8 +254,10 @@ int main(int argc, char ** argv)
 
   DEBUGGING(write_out(C, a_dim1, b_dim2));
 
-  /* now check that the team's matmul routine gives the same answer
-  as the known working version */
+  /* 
+    Now check that the team's matmul routine gives the same answer
+    as the known working version 
+  */
   check_result(C, control_matrix, a_dim1, b_dim2);
 
   return 0;
