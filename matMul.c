@@ -1,5 +1,7 @@
-/* Test and timing harness program for developing a dense matrix
-multiplication routine for the CS3014 module */
+/* 
+  Test and timing harness program for developing a dense matrix
+  multiplication routine for the CS3014 module 
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,14 +11,19 @@ multiplication routine for the CS3014 module */
 
 #include <xmmintrin.h>
 
-/* the following two definitions of DEBUGGING control whether or not
-debugging information is written out. To put the program into
-debugging mode, uncomment the following line: */
+/* 
+  The following two definitions of DEBUGGING control whether or not
+  debugging information is written out. To put the program into
+  debugging mode, uncomment the following line: 
+*/
 /*#define DEBUGGING(_x) _x */
-/* to stop the printing of debugging information, use the following line: */
+/* 
+  To stop the printing of debugging information, use the following line: 
+*/
 #define DEBUGGING(_x)
 
-struct complex {
+struct complex 
+{
   float real;
   float imag;
 };
@@ -26,8 +33,10 @@ void write_out(struct complex ** a, int dim1, int dim2)
 {
   int i, j;
 
-  for ( i = 0; i < dim1; i++ ) {
-    for ( j = 0; j < dim2 - 1; j++ ) {
+  for ( i = 0; i < dim1; i++ )
+  {
+    for ( j = 0; j < dim2 - 1; j++ )
+    {
       printf("%f + %fi ", a[i][j].real, a[i][j].imag);
     }
     printf("%f +%fi\n", a[i][dim2-1].real, a[i][dim2-1].imag);
@@ -42,7 +51,8 @@ struct complex ** new_empty_matrix(int dim1, int dim2)
   struct complex * new_matrix = malloc(sizeof(struct complex) * dim1 * dim2);
   int i;
 
-  for ( i = 0; i < dim1; i++ ) {
+  for ( i = 0; i < dim1; i++ ) 
+  {
     result[i] = &(new_matrix[i*dim2]);
   }
 
@@ -55,12 +65,13 @@ struct complex ** copy_matrix(struct complex ** source_matrix, int dim1, int dim
   int i, j;
   struct complex ** result = new_empty_matrix(dim1, dim2);
 
-  for ( i = 0; i < dim1; i++ ) {
-    for ( j = 0; j < dim2; j++ ) {
+  for ( i = 0; i < dim1; i++ ) 
+  {
+    for ( j = 0; j < dim2; j++ )
+    {
       result[i][j] = source_matrix[i][j];
     }
   }
-
   return result;
 }
 
@@ -80,8 +91,10 @@ struct complex ** gen_random_matrix(int dim1, int dim2)
   srandom(seed);
 
   /* fill the matrix with random numbers */
-  for ( i = 0; i < dim1; i++ ) {
-    for ( j = 0; j < dim2; j++ ) {
+  for ( i = 0; i < dim1; i++ )
+  {
+    for ( j = 0; j < dim2; j++ )
+    {
       long long upper = random();
       long long lower = random();
       result[i][j].real = (float)((upper << 32) | lower);
@@ -101,8 +114,10 @@ void check_result(struct complex ** result, struct complex ** control, int dim1,
   double sum_abs_diff = 0.0;
   const double EPSILON = 0.0625;
 
-  for ( i = 0; i < dim1; i++ ) {
-    for ( j = 0; j < dim2; j++ ) {
+  for ( i = 0; i < dim1; i++ ) 
+  {
+    for ( j = 0; j < dim2; j++ )
+    {
       double diff;
       diff = abs(control[i][j].real - result[i][j].real);
       sum_abs_diff = sum_abs_diff + diff;
@@ -157,11 +172,13 @@ int main(int argc, char ** argv)
   struct timeval start_time;
   struct timeval stop_time;
 
-  if ( argc != 5 ) {
+  if ( argc != 5 ) 
+  {
     fprintf(stderr, "Usage: matmul-harness <A nrows> <A ncols> <B nrows> <B ncols>\n");
     exit(1);
   }
-  else {
+  else 
+  {
     a_dim1 = atoi(argv[1]);
     a_dim2 = atoi(argv[2]);
     b_dim1 = atoi(argv[3]);
@@ -169,7 +186,8 @@ int main(int argc, char ** argv)
   }
 
   /* check the matrix sizes are compatible */
-  if ( a_dim2 != b_dim1 ) {
+  if ( a_dim2 != b_dim1 )
+  {
     fprintf(stderr,
     "FATAL number of columns of A (%d) does not match number of rows of B (%d)\n",
     a_dim2, b_dim1);
