@@ -1,0 +1,89 @@
+ Types (all 128 bits wide):
+	__m128		| 4 32 bit single precision floats
+	__m128i		| 4 32 bit integers
+	__m128d		| 2 64 bit double precision floats
+
+Load 4 floats from a 16 byte aligned address:
+	__m128 _mm_load_ps(float *src)
+
+Load from an unaligned address (4x slower):
+	__m128 _mm_loadu_ps(float *src)
+
+Load 1 float into all 4 fields of an __m128:
+	__m128 _mm_load1_ps(float *src)
+
+Load 4 floats from parameters into an __m128:
+	__m128 _mm_setr_ps(float a,float b,float c,float d)
+
+Load 1 float into all 4 fields of an __m128:
+	__m128 _mm_set1_ps(float w)
+
+Store 4 floats to an aligned address:
+	void _mm_store_ps(float *dest,__m128 src)
+
+Store 4 floats to unaligned address:
+	void _mm_storeu_ps(float *dest,__m128 src)
+
+(Corresponding) arithmetic operations:
+	__m128 _mm_add_ps(__m128 a, __m128 b)
+	__m128 _mm_sub_ps(__m128 a, __m128 b)
+	__m128 _mm_mul_ps(__m128 a, __m128 b)
+	__m128 _mm_div_ps(__m128 a, __m128 b)
+	__m128 _mm_min_ps(__m128 a, __m128 b)
+	__m128 _mm_max_ps(__m128 a, __m128 b)
+
+Square root of 4 floats (slow like divide):
+	__m128 _mm_sqrt_ps(__m128 a)
+
+Reciprocal of all 4 floats (fast as an add) (12 bit accuracy):
+	__m128 _mm_rcp_ps(__m128 a)
+
+Reciprocal-square-root of all 4 floats (fast) (12 bit accuracy):
+	__m128 _mm_rsqrt_ps(__m128 a)
+
+Bitwise Operations:
+	__m128 _mm_and_ps(__m128 a, __m128 b) 		| r = a and b
+	__m128 _mm_or_ps(__m128 a, __m128 b) 		| r = a or b
+	__m128 _mm_andnot_ps(__m128 a, __m128 b) 	| r = not a and b
+	__m128 _mm_xor_ps(__m128 a, __m128 b) 		| r = a xor b
+
+Comparison Operations:
+	__m128 _mm_cmpeq_ps(__m128 a, __m128 b) 	| ==
+	__m128 _mm_cmplt_ps(__m128 a, __m128 b) 	| <
+	__m128 _mm_cmple_ps(__m128 a, __m128 b) 	| <=
+	__m128 _mm_cmpgt_ps(__m128 a, __m128 b) 	| >
+	__m128 _mm_cmpge_ps(__m128 a, __m128 b) 	| >=
+	__m128 _mm_cmpneq_ps(__m128 a, __m128 b) 	| !=
+	__m128 _mm_cmpnlt_ps(__m128 a, __m128 b) 	| !<
+	__m128 _mm_cmpnle_ps(__m128 a, __m128 b) 	| !<=
+	__m128 _mm_cmpngt_ps(__m128 a, __m128 b) 	| !>
+	__m128 _mm_cmpnge_ps(__m128 a, __m128 b) 	| !>=
+
+Convert __m128 mask from comparison operation into a 4 bit integer:
+	int _mm_movemask_ps(__m128 a)
+
+Notes on using comparison operations:
+	Comparison instructions return a bitmask indicating which of the constituent parts of the SSE register passed and which failed.
+	It is possible to use this mask directly rather than using the _mm_movemask_ps intrinsic.
+	The result of a comparison is four values, one for each of the numbers compared.
+	If the comparison is false then the result is zero.
+	If the comparison is true, then the result is minus one.
+	Note that minus one in two’s complement is represented by all the bits being set to one. So the result of a comparison is all the bits in the result being set to zero, or all the bits set to one.
+	We can use this the returned mask in conjunction with an AND operation to get only the numbers that passed the comparison and not those that failed.
+
+Shuffle operation:
+	__m128 _mm_shuffle_ps(__m128 lo, __m128 hi, _MM_SHUFFLE(hi3, hi2, lo1, lo0))
+
+Note: Vector contents are ordered backwards. So an __m128 is indexed (3, 2, 1, 0) and NOT (0, 1, 2, 3)
+
+Horizontal operations:
+	__m128 _mm_hadd_ps(__m128 a, __m128 b)
+	__m128 _mm_hsub_ps(__m128 a, __m128 b)
+	Example:
+		a = [a3, a2, a1, a0]
+		b = [b3, b2, b1, b0]
+		c = _mm_hadd_ps(a,b) gives:
+			c = [b3+b2, b1+b0, a3+a2, a1+a0]
+
+Note: SSE Packed Instructions are suffixed with _ps and Scalar Instructions are suffixed with _ss. Many of the above instructions have a scalar version
+Example: _mm_add_ss(a, b) will add element 0 of a to element 0 of b and just take the remaining three elements from a
