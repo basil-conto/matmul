@@ -140,7 +140,8 @@ void check_result(struct complex ** result, struct complex ** control, int dim1,
     }
   }
 
-  if ( sum_abs_diff > EPSILON ) {
+  if ( sum_abs_diff > EPSILON ) 
+  {
     fprintf(stderr, "WARNING: sum of absolute differences (%f) > EPSILON (%f)\n",
     sum_abs_diff, EPSILON);
   }
@@ -149,7 +150,8 @@ void check_result(struct complex ** result, struct complex ** control, int dim1,
 /* 
   Multiply matrix A times matrix B and put result in matrix C
 */
-void matmul(struct complex ** A, struct complex ** B, struct complex ** C, int a_dim1, int a_dim2, int b_dim2)
+void matmul(struct complex ** A, struct complex ** B, struct complex ** C, 
+            int a_dim1, int a_dim2, int b_dim2)
 {
   int i, j, k;
 
@@ -177,7 +179,8 @@ void matmul(struct complex ** A, struct complex ** B, struct complex ** C, int a
 /* 
   The fast version of matmul written by the team
 */
-void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C, int a_dim1, int a_dim2, int b_dim2)
+void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
+                 int a_dim1, int a_dim2, int b_dim2)
 {
   /* 
     This call here is just dummy code
