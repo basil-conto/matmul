@@ -22,6 +22,7 @@
 /*
   To stop the printing of debugging information, use the following line: 
 */
+
 #define DEBUGGING(_x)
 
 struct complex 
@@ -149,15 +150,15 @@ void check_result(struct complex ** result, struct complex ** control, int dim1,
 void matmul(struct complex ** A, struct complex ** B, struct complex ** C, 
             int a_dim1, int a_dim2, int b_dim2)
 {
-  struct complex sum, product;
+  struct complex sum;
 
-  for ( int i = 0; i < a_dim1; i++ ) 
+  for ( int i = 0; i < a_dim1; i++ )
   {
-    for( int j = 0; j < b_dim2; j++ ) 
+    for( int j = 0; j < b_dim2; j++ )
     {
       sum.real = 0.0;
       sum.imag = 0.0;
-      for ( int k = 0; k < a_dim2; k++ ) 
+      for ( int k = 0; k < a_dim2; k++ )
       {
         // the following code does: sum += A[i][k] * B[k][j];
         sum.real += A[i][k].real * B[k][j].real - A[i][k].imag * B[k][j].imag;
@@ -174,11 +175,23 @@ void matmul(struct complex ** A, struct complex ** B, struct complex ** C,
 void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
                  int a_dim1, int a_dim2, int b_dim2)
 {
-  /* 
-    This call here is just dummy code
-    insert your own code instead
-  */
-  matmul(A, B, C, a_dim1, a_dim2, b_dim2);
+  struct complex sum;
+
+  for ( int i = 0; i < a_dim1; i++ )
+  {
+    for( int j = 0; j < b_dim2; j++ )
+    {
+      sum.real = 0.0;
+      sum.imag = 0.0;
+      for ( int k = 0; k < a_dim2; k++ )
+      {
+        // the following code does: sum += A[i][k] * B[k][j];
+        sum.real += A[i][k].real * B[k][j].real - A[i][k].imag * B[k][j].imag;
+        sum.imag += A[i][k].real * B[k][j].imag + A[i][k].imag * B[k][j].real;
+      }
+      C[i][j] = sum;
+    }
+  }
 }
 
 int main(int argc, char ** argv)
@@ -222,7 +235,10 @@ int main(int argc, char ** argv)
   C = new_empty_matrix(a_dim1, b_dim2);
   control_matrix = new_empty_matrix(a_dim1, b_dim2);
 
+  DEBUGGING(puts("First matrix:"));
   DEBUGGING(write_out(A, a_dim1, a_dim2));
+  DEBUGGING(puts("Second matrix:"));
+  DEBUGGING(write_out(B, b_dim1, b_dim2));
 
   /*
     Record starting time of naive matrix multiplication
@@ -260,6 +276,7 @@ int main(int argc, char ** argv)
              (stop_time.tv_usec - start_time.tv_usec);
   printf("team_matmul time: %lld microseconds\n", mul_time);
 
+  DEBUGGING(puts("Resultant matrix:"));
   DEBUGGING(write_out(C, a_dim1, b_dim2));
 
   /* 
@@ -268,5 +285,5 @@ int main(int argc, char ** argv)
   */
   check_result(C, control_matrix, a_dim1, b_dim2);
 
-  return 0;
+  return EXIT_SUCCESS;
 }
