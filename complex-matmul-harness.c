@@ -205,15 +205,29 @@ void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
       }
       if(remainder > 0) //this if statement handles the multiplication for any remainder row/column elements
       {
-        int k = stop - (4 - remainder); //this is the overlap method, ie. if remainder = 3, the last three
-        //elements of the vector will be the remainder elements, and the first is re-using a previous element 
+        int k = stop; 
 
-        realVector1 = _mm_setr_ps(A[i][k].real,A[i][k+1].real,A[i][k+2].real,A[i][k+3].real);
-        realVector2 = _mm_setr_ps(B[k][j].real,B[k+1][j].real,B[k+2][j].real,B[k+3][j].real);
+        if(remainder = 1){
+          realVector1 = _mm_setr_ps(A[i][k].real,0,0,0);
+          realVector2 = _mm_setr_ps(B[k][j].real,0,0,0);
 
-        imagVector1 = _mm_setr_ps(A[i][k].imag,A[i][k+1].imag,A[i][k+2].imag,A[i][k+3].imag);
-        imagVector2 = _mm_setr_ps(B[k][j].imag,B[k+1][j].imag,B[k+2][j].imag,B[k+3][j].imag);
+          imagVector1 = _mm_setr_ps(A[i][k].imag,0,0,0);
+          imagVector2 = _mm_setr_ps(B[k][j].imag,0,0,0);
+        }
+        else if(remainder = 2){
+          realVector1 = _mm_setr_ps(A[i][k].real,A[i][k+1].real,0,0);
+          realVector2 = _mm_setr_ps(B[k][j].real,B[k+1][j].real,0,0);
 
+          imagVector1 = _mm_setr_ps(A[i][k].imag,A[i][k+1].imag,0,0);
+          imagVector2 = _mm_setr_ps(B[k][j].imag,B[k+1][j].imag,0,0);
+        }
+        else if(remainder = 3){
+          realVector1 = _mm_setr_ps(A[i][k].real,A[i][k+1].real,A[i][k+2].real,0);
+          realVector2 = _mm_setr_ps(B[k][j].real,B[k+1][j].real,B[k+2][j].real,0);
+
+          imagVector1 = _mm_setr_ps(A[i][k].imag,A[i][k+1].imag,A[i][k+2].imag,0);
+          imagVector2 = _mm_setr_ps(B[k][j].imag,B[k+1][j].imag,B[k+2][j].imag,0);
+        }
         result1 = _mm_mul_ps(realVector1,realVector2);
         result2 = _mm_mul_ps(imagVector1,imagVector2);
 
