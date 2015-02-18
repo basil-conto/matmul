@@ -6,7 +6,7 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <omp.h>
-
+#include <xmmintrin.h>
 
 
 
@@ -151,10 +151,54 @@ void matmul(struct complex ** A, struct complex ** B, struct complex ** C, int a
   }
 }
 
-/* the fast version of matmul written by the team */
-void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C, int a_rows, int a_cols, int b_cols) {
-  //replace this
-  matmul(A, B, C, a_rows, a_cols, b_cols);
+* 
+  The fast version of matmul written by the team
+*/
+void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
+                 int a_dim1, int a_dim2, int b_dim2)
+{
+  struct complex sum;
+  __m128 realVector1, realVector2;
+  __m128 imagVector1, imagVector2;
+  __m128 realByReal, imagByImag;
+  __m128 realByImag, imagByReal;
+  __m128 resultReal, resultImag;
+  
+  float l[4];
+  for ( int i = 0; i < a_dim1; i++)
+  {
+    for( int j = 0; j < b_dim2; j++)
+    {
+      sum.real = 0.0;
+      sum.imag = 0.0;
+      
+      for(int k = 0; k < a_dim2-4; k += 4)
+      {
+        realVector1 = _mm_setr_ps(A[i][k].real, A[i][k+1].real,A[i][k+2].real, A[i][k+3].real);
+        imagVector1 = _mm_setr_ps(A[i][k].imag, A[i][k+1].imag,A[i][k+2].imag, A[i][k+3].imag);
+        
+        realVector2 = _mm_setr_ps(B[k][j].real, B[k][j+1].real,B[k][j+2].real, B[k][j+3].real);
+        imagVector2 = _mm_setr_ps(B[k][j].imag, B[k][j+1].imag,B[k][j+2].imag, B[k][j+3].imag);
+        
+        realByReal = _mm_mul_ps(realVector1,realVector2);
+        imagByImag = _mm_mul_ps(imagVector1,imagVector2);
+        
+        realByImag = _mm_mul_ps(realVector1, imagVector1);
+        imagByReal = _mm_mul_ps(realVector2, imagVector2);
+        
+        resultReal = _mm_sub_ps(realByReal,imagByImag);
+        resultImag = _mm_add_ps(realByImag, imagByReal);
+        _mm_store_ps(l,resultReal);
+        sum.real = l[0] + l[1] + l[2] + l[3];
+        _mm_store_ps(l,resultImag);
+        sum.imag = l[0] + l[1] + l[2] + l[3];
+        // the following code does: sum += A[i][k] * B[k][j];
+        //sum.real += A[i][k].real * B[k][j].real - A[i][k].imag * B[k][j].imag;
+        //sum.imag += A[i][k].real * B[k][j].imag + A[i][k].imag * B[k][j].real;
+      }
+      C[i][j] = sum;
+    }
+  }
 }
 
 long long time_diff(struct timeval * start, struct timeval * end) {
