@@ -15,7 +15,7 @@
    debugging mode, uncomment the following line: */
 /*#define DEBUGGING(_x) _x */
 /* to stop the printing of debugging information, use the following line: */
-#define DEBUGGING(_x) 
+#define DEBUGGING(_x)
 
 struct complex {
   float real;
@@ -150,7 +150,7 @@ void matmul(struct complex ** A, struct complex ** B, struct complex ** C, int a
   }
 }
 
-/* 
+/*
   The fast version of matmul written by the team
 */
 void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
@@ -164,10 +164,11 @@ void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
   __m128 realByImag, imagByReal;
   __m128 result1, result2;
   __m128 final;
-  
-  int size = a_dim2 % 4;
-  
-  float l[4];
+
+  int remainder = a_dim2 % 4;
+  int stop = a_dim2 - remainder;
+
+  float vectorAsArray[4];
 
   for ( int i = 0; i < a_dim1; i++)
   {
@@ -175,36 +176,61 @@ void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
     {
       sum.real = 0.0;
       sum.imag = 0.0;
-      
-      for(int k = 0; k < a_dim2-4; k += 4)
+
+      for(int k = 0; k < stop; k += 4)
       {
         realVector1 = _mm_setr_ps(A[i][k].real,A[i][k+1].real,A[i][k+2].real,A[i][k+3].real);
         realVector2 = _mm_setr_ps(B[k][j].real,B[k+1][j].real,B[k+2][j].real,B[k+3][j].real);
-                                
+
         imagVector1 = _mm_setr_ps(A[i][k].imag,A[i][k+1].imag,A[i][k+2].imag,A[i][k+3].imag);
         imagVector2 = _mm_setr_ps(B[k][j].imag,B[k+1][j].imag,B[k+2][j].imag,B[k+3][j].imag);
-        
+
         result1 = _mm_mul_ps(realVector1,realVector2);
         result2 = _mm_mul_ps(imagVector1,imagVector2);
-        
+
         final = _mm_sub_ps(result1,result2);
-        _mm_store_ps(l,final);
-        sum.real = sum.real + l[0] + l[1] + l[2] + l[3];
-        
+        _mm_store_ps(vectorAsArray,final);
+        sum.real = sum.real + vectorAsArray[0] + vectorAsArray[1] + vectorAsArray[2] + vectorAsArray[3];
+
         result1 = _mm_mul_ps(realVector1,imagVector2);
         result2 = _mm_mul_ps(imagVector1,realVector2);
-        
+
         final = _mm_add_ps(result2,result1);
-        _mm_store_ps(l,final);
-        sum.imag = sum.imag + l[0] + l[1] + l[2] + l[3];
-        
+        _mm_store_ps(vectorAsArray,final);
+        sum.imag = sum.imag + vectorAsArray[0] + vectorAsArray[1] + vectorAsArray[2] + vectorAsArray[3];
+
         // the following code does: sum += A[i][k] * B[k][j];
         //sum.real += A[i][k].real * B[k][j].real - A[i][k].imag * B[k][j].imag;
         //sum.imag += A[i][k].real * B[k][j].imag + A[i][k].imag * B[k][j].real;
       }
+      if(remainder > 0) //this if statement handles the multiplication for any remainder row/column elements
+      {
+        int k = stop - (4 - remainder); //this is the overlap method, ie. if remainder = 3, the last three
+        //elements of the vector will be the remainder elements, and the first is re-using a previous element 
+
+        realVector1 = _mm_setr_ps(A[i][k].real,A[i][k+1].real,A[i][k+2].real,A[i][k+3].real);
+        realVector2 = _mm_setr_ps(B[k][j].real,B[k+1][j].real,B[k+2][j].real,B[k+3][j].real);
+
+        imagVector1 = _mm_setr_ps(A[i][k].imag,A[i][k+1].imag,A[i][k+2].imag,A[i][k+3].imag);
+        imagVector2 = _mm_setr_ps(B[k][j].imag,B[k+1][j].imag,B[k+2][j].imag,B[k+3][j].imag);
+
+        result1 = _mm_mul_ps(realVector1,realVector2);
+        result2 = _mm_mul_ps(imagVector1,imagVector2);
+
+        final = _mm_sub_ps(result1,result2);
+        _mm_store_ps(vectorAsArray,final);
+        sum.real = sum.real + vectorAsArray[0] + vectorAsArray[1] + vectorAsArray[2] + vectorAsArray[3];
+
+        result1 = _mm_mul_ps(realVector1,imagVector2);
+        result2 = _mm_mul_ps(imagVector1,realVector2);
+
+        final = _mm_add_ps(result2,result1);
+        _mm_store_ps(vectorAsArray,final);
+        sum.imag = sum.imag + vectorAsArray[0] + vectorAsArray[1] + vectorAsArray[2] + vectorAsArray[3];
+      }
       C[i][j] = sum;
     }
-    
+
   }
 }
 
@@ -292,4 +318,3 @@ int main(int argc, char ** argv)
 
   return 0;
 }
-
