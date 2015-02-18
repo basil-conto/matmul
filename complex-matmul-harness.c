@@ -151,7 +151,7 @@ void matmul(struct complex ** A, struct complex ** B, struct complex ** C, int a
   }
 }
 
-* 
+/* 
   The fast version of matmul written by the team
 */
 void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
