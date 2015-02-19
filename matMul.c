@@ -115,7 +115,7 @@ struct complex ** gen_random_matrix(int dim1, int dim2) {
 
   result = new_empty_matrix(dim1, dim2);
 
-  // Use the microsecond part of the current time as a pseudo-random seed 
+  // Use the microsecond part of the current time as a pseudo-random seed
   gettimeofday(&seedtime, NULL);
   seed = seedtime.tv_usec;
   srandom(seed);
@@ -165,7 +165,7 @@ void check_result(struct complex ** result, struct complex ** control,
 /*
   Multiply matrix A times matrix B and put result in matrix C.
 */
-void matmul(struct complex ** A, struct complex ** B, struct complex ** C, 
+void matmul(struct complex ** A, struct complex ** B, struct complex ** C,
             int a_dim1, int a_dim2, int b_dim2) {
 
   struct complex sum;
@@ -201,6 +201,15 @@ void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
   const int remainder = a_dim2 % 4;
   const int s = a_dim2 - remainder;
 
+  struct complex a;
+  struct complex a1;
+  struct complex a2;
+  struct complex a3;
+  struct complex b;
+  struct complex b1;
+  struct complex b2;
+  struct complex b3;
+
   float vectorAsArray[4];
 
   for (int i = 0; (i < a_dim1); i++) {
@@ -209,15 +218,23 @@ void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
       sum = (struct complex){0.0, 0.0};
 
       for(int k = 0; (k < s); k += 4) {
-        realVector1 = _mm_setr_ps(A[i][k].real,     A[i][k + 1].real,
-                                  A[i][k + 2].real, A[i][k + 3].real);
-        realVector2 = _mm_setr_ps(B[k][j].real,     B[k + 1][j].real,
-                                  B[k + 2][j].real, B[k + 3][j].real);
+        a = A[i][k];
+        a1 = A[i][k + 1];
+        a2 = A[i][k + 2];
+        a3 = A[i][k + 3];
+        b = B[k][j];
+        b1 = B[k + 1][j];
+        b2 = B[k + 2][j];
+        b3 = B[k + 3][j];
+        realVector1 = _mm_setr_ps(a.real,  a1.real,
+                                  a2.real, a3.real);
+        realVector2 = _mm_setr_ps(b.real,     b1.real,
+                                  b2.real, b3.real);
 
-        imagVector1 = _mm_setr_ps(A[i][k].imag,     A[i][k + 1].imag,
-                                  A[i][k + 2].imag, A[i][k + 3].imag);
-        imagVector2 = _mm_setr_ps(B[k][j].imag,     B[k + 1][j].imag,
-                                  B[k + 2][j].imag, B[k + 3][j].imag);
+        imagVector1 = _mm_setr_ps(a.imag,  a1.imag,
+                                  a2.imag, a3.imag);
+        imagVector2 = _mm_setr_ps(b.imag,  b1.imag,
+                                  b2.imag, b3.imag);
 
         result1 = _mm_mul_ps(realVector1, realVector2);
         result2 = _mm_mul_ps(imagVector1, imagVector2);
@@ -349,7 +366,7 @@ int main(int argc, char ** argv) {
   // Record control start time
   gettimeofday(&time0, NULL);
 
-  // Use a simple matmul routine to produce control result 
+  // Use a simple matmul routine to produce control result
   matmul(A, B, ctrl_matrix, a_dim1, a_dim2, b_dim2);
 
   DEBUGGING( {
