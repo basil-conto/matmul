@@ -175,8 +175,8 @@ void matmul(struct complex ** A, struct complex ** B, struct complex ** C,
       sum = (struct complex){0.0, 0.0};
       for (int k = 0; (k < a_dim2); k++) {
         // The following code does: sum += A[i][k] * B[k][j];
-        sum.real += A[i][k].real * B[k][j].real - A[i][k].imag * B[k][j].imag;
-        sum.imag += A[i][k].real * B[k][j].imag + A[i][k].imag * B[k][j].real;
+        sum.real = sum.real + (A[i][k].real * B[k][j].real - A[i][k].imag * B[k][j].imag);
+        sum.imag = sum.imag + (A[i][k].real * B[k][j].imag + A[i][k].imag * B[k][j].real);
       }
       C[i][j] = sum;
     }
@@ -224,16 +224,16 @@ void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
 
         final = _mm_sub_ps(result1, result2);
         _mm_store_ps(vectorAsArray, final);
-        sum.real += vectorAsArray[0] + vectorAsArray[1] +
-                    vectorAsArray[2] + vectorAsArray[3];
+        sum.real = sum.real + vectorAsArray[0] + vectorAsArray[1] +
+                              vectorAsArray[2] + vectorAsArray[3];
 
         result1 = _mm_mul_ps(realVector1, imagVector2);
         result2 = _mm_mul_ps(imagVector1, realVector2);
 
         final = _mm_add_ps(result2, result1);
         _mm_store_ps(vectorAsArray, final);
-        sum.imag += vectorAsArray[0] + vectorAsArray[1] +
-                    vectorAsArray[2] + vectorAsArray[3];
+        sum.imag = sum.imag + vectorAsArray[0] + vectorAsArray[1] +
+                              vectorAsArray[2] + vectorAsArray[3];
 
         // the following code does: sum += A[i][k] * B[k][j];
         // sum.real += A[i][k].real * B[k][j].real - A[i][k].imag * B[k][j].imag;
@@ -277,16 +277,16 @@ void team_matmul(struct complex ** A, struct complex ** B, struct complex ** C,
 
         final = _mm_sub_ps(result1, result2);
         _mm_store_ps(vectorAsArray, final);
-        sum.real += vectorAsArray[0] + vectorAsArray[1] +
-                    vectorAsArray[2] + vectorAsArray[3];
+        sum.real = sum.real + vectorAsArray[0] + vectorAsArray[1] +
+                              vectorAsArray[2] + vectorAsArray[3];
 
         result1 = _mm_mul_ps(realVector1, imagVector2);
         result2 = _mm_mul_ps(imagVector1, realVector2);
 
         final = _mm_add_ps(result2, result1);
         _mm_store_ps(vectorAsArray, final);
-        sum.imag += vectorAsArray[0] + vectorAsArray[1] +
-                    vectorAsArray[2] + vectorAsArray[3];
+        sum.imag = sum.imag + vectorAsArray[0] + vectorAsArray[1] +
+                              vectorAsArray[2] + vectorAsArray[3];
       } // end if
 
       C[i][j] = sum;
