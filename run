@@ -1,41 +1,76 @@
 #!/bin/sh
 
+# ------------------------------------------------------------------------------
+# Convenience build script for the MatMul matrix multiplicaton program.
+#
+# Copyright (c) 2015 by its authors.
+#
+# This code is distributed under the BSD3 license. See AUTHORS, LICENSE.
+# ------------------------------------------------------------------------------
+
+TARGET='./build/matmul'
+
+USAGE='
+NAME
+    run - convenience build script for the MatMul program.
+
+SYNOPSIS
+    ./run [-d] <A nrows> <A ncols> <B nrows> <B ncols>
+
+DESCRIPTION
+    Runs the MatMul matrix multiplication program, optionally in debug mode,
+    with the given matrix dimensions.
+
+OPTIONS
+    -d      Run in debug mode, printing the elements of the input and resultant
+            matrices.'
+
 print_usage() {
-    echo "Usage:  ./run [-d] <A rows> <A cols> <B rows> <B cols>"
-    echo ""
-    echo "Runs matMul, optionally in debug mode, with the given matrix dimensions"
-    echo ""
-    echo "Option: -d  Run in debug mode."
+  echo "$USAGE"
+}
+
+check_dimen() {
+  case $1 in
+    ''|*[!0-9]*)
+      echo "Invalid matrix dimension: $1"
+      print_usage
+      exit 1
+      ;;
+    *)
+      ;;
+  esac
 }
 
 run_with() {
-    make clean && make && ./matMul $1 $2 $3 $4
+  make clean && make && $TARGET $1 $2 $3 $4
 }
 
 debug_with() {
-    if [ "$1" = "-d" ]; then
-        make clean && make FLAG="-DDEBUG" && ./matMul $2 $3 $4 $5
-    else
-        print_usage
-        exit 1
-    fi
+  if [ "$1" = "-d" ]; then
+    echo "Args 2-5: $2 $3 $4 $5"
+    make clean && make CPPFLAGS="-DDEBUG" && $TARGET $2 $3 $4 $5
+  else
+    print_usage
+    exit 1
+  fi
 }
 
 case $# in
-    1)
-        run_with   $1 $1 $1 $1
-        ;;
-    2)
-        debug_with $1 $2 $2 $2 $2
-        ;;
-    4)
-        run_with   $1 $2 $3 $4
-        ;;
-    5)
-        debug_with $1 $2 $3 $4 $5
-        ;;
-    *)
-        print_usage
-        exit 1
-        ;;
+  1)
+    check_dimen $1
+    run_with   $1 $1 $1 $1
+    ;;
+  2)
+    debug_with $1 $2 $2 $2 $2
+    ;;
+  4)
+    run_with   $1 $2 $3 $4
+    ;;
+  5)
+    debug_with $1 $2 $3 $4 $5
+    ;;
+  *)
+    print_usage
+    exit 1
+    ;;
 esac
