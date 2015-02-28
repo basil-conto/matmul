@@ -15,62 +15,76 @@ NAME
     run - convenience build script for the MatMul program.
 
 SYNOPSIS
-    ./run [-d] <A nrows> <A ncols> <B nrows> <B ncols>
+    ./run [OPTION] <A nrows> <A ncols> <B nrows> <B ncols>
 
 DESCRIPTION
     Runs the MatMul matrix multiplication program, optionally in debug mode,
     with the given matrix dimensions.
 
 OPTIONS
+    -h      Print this help message.
+
     -d      Run in debug mode, printing the elements of the input and resultant
             matrices.'
 
-print_usage() {
+print_exit() {
+  echo "$1"
   echo "$USAGE"
-}
-
-check_dimen() {
-  case $1 in
-    ''|*[!0-9]*)
-      echo "Invalid matrix dimension: $1"
-      print_usage
-      exit 1
-      ;;
-    *)
-      ;;
-  esac
+  exit 1
 }
 
 run_with() {
-  make clean && make && $TARGET $1 $2 $3 $4
+  make clean && make && $TARGET $@
 }
 
 debug_with() {
-  if [ "$1" = "-d" ]; then
-    echo "Args 2-5: $2 $3 $4 $5"
-    make clean && make CPPFLAGS="-DDEBUG" && $TARGET $2 $3 $4 $5
-  else
-    print_usage
-    exit 1
+  make clean && make CPPFLAGS="-DDEBUG" && $TARGET $@
+}
+
+check_dimens() {
+  for dimen in "$@"; do
+    case $dimen in
+      ''|*[!0-9]*)
+        print_exit "Invalid matrix dimension: $dimen"
+        ;;
+      *)
+        ;;
+    esac
+  done
+}
+
+check_flag() {
+  if [ "$1" != "-d" ]; then
+    print_exit "Invalid flag: $1"
   fi
 }
 
 case $# in
   1)
-    check_dimen $1
-    run_with   $1 $1 $1 $1
+    if [ "$1" = "-h" ]; then
+      echo "$USAGE"
+      exit 0
+    fi
+    check_dimens $1
+    run_with     $1 $1 $1 $1
     ;;
   2)
-    debug_with $1 $2 $2 $2 $2
+    check_flag   $1
+    shift
+    check_dimens $1
+    debug_with   $1 $1 $1 $1
     ;;
   4)
-    run_with   $1 $2 $3 $4
+    check_dimens $@
+    run_with     $@
     ;;
   5)
-    debug_with $1 $2 $3 $4 $5
+    check_flag   $1
+    shift
+    check_dimens $@
+    debug_with   $@
     ;;
   *)
-    print_usage
-    exit 1
+    print_exit "Invalid number of arguments"
     ;;
 esac
