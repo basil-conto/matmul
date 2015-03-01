@@ -48,8 +48,8 @@ print_exit() {
   exit 1
 }
 
-# Determines whether all the given arguments are valid matrix dimensions, i.e.
-# non-negative integers consisting solely of the digits 0-9.
+# Exits unsuccessfully if any of the given arguments are no valid matrix
+# dimensions, i.e. non-negative integers consisting solely of the digits 0-9.
 check_dimens() {
   for i in "$@"; do
     case $i in
