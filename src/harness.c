@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#include "matrix.h"
+#include "complex.h"
 #include "matmul.h"
 
 /*

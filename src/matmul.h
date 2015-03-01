@@ -11,8 +11,8 @@
 #ifndef MATMUL_H
 # define MATMUL_H
 
-# ifndef MATRIX_H
-#  include "matrix.h"
+# ifndef COMPLEX_H
+#  include "complex.h"
 # endif
 
 /*
