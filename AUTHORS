@@ -4,8 +4,8 @@ multiplication program, created in 2015 as part of the coursework for a
 university module on concurrent systems.
 
     Basil L. Contovounesios             <contovob@tcd.ie>
-    Ben Lynch
-    Simon Markham
+    Ben Lynch                           <belynch@tcd.ie>
+    Simon Markham                       <markhams@tcd.ie>
 
 The test harness (src/harness.c) was written by the lecturer of the module and
 is, as such, owned by the university, Trinity College Dublin. It was slightly
