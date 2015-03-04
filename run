@@ -11,7 +11,7 @@
 # VARIABLES --------------------------------------------------------------------
 
 TARGET='./build/matmul'
-CPPFLAG=''
+cppflag=''
 
 USAGE=\
 "NAME
@@ -50,11 +50,11 @@ print_exit() {
 
 # Exits unsuccessfully if any of the given arguments are no valid matrix
 # dimensions, i.e. non-negative integers consisting solely of the digits 0-9.
-check_dimens() {
-  for i in "$@"; do
-    case $i in
+assert_dimens() {
+  for dimen in "$@"; do
+    case $dimen in
       '' | *[!0-9]*)
-        print_exit "Invalid matrix dimension: $i"
+        print_exit "Invalid matrix dimension: $dimen"
         ;;
       *)
         ;;
@@ -65,7 +65,7 @@ check_dimens() {
 # Invokes 'make', with preprocessor flags determined by the CPPGLAG variable,
 # before running the target with the given arguments.
 run_with() {
-  make clean && make CPPFLAGS="$CPPFLAG" && $TARGET $@
+  make clean && make CPPFLAGS="$cppflag" && $TARGET $@
 }
 
 # SCRIPT -----------------------------------------------------------------------
@@ -73,7 +73,7 @@ run_with() {
 # Check first argument for accepted flags.
 case "$1" in
   -d | --debug)
-    CPPFLAG='-DDEBUG'
+    cppflag='-DDEBUG'
     shift
     ;;
   -c | --clean)
@@ -91,12 +91,12 @@ esac
 # the target.
 case $# in
   1)
-    check_dimens $1
-    run_with     $1 $1 $1 $1
+    assert_dimens $1
+    run_with      $1 $1 $1 $1
     ;;
   4)
-    check_dimens $@
-    run_with     $@
+    assert_dimens $@
+    run_with      $@
     ;;
   *)
     print_exit 'Expected 1 or 4 matrix dimensions.'
