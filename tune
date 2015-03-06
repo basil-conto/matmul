@@ -62,4 +62,4 @@ avg_speedup=$(($avg_ctrl_time / $avg_mult_time))
 echo ""
 printf "Avg. control time : %9d\n"        "$avg_ctrl_time"
 printf "Avg. matmul  time : %9d\n"        "$avg_mult_time"
-printf "Avg. speedup (int):       %3dx\n" "$avg_speedup"
+printf "Avg. speedup (int):      %3dx\n" "$avg_speedup"
