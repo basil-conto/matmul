@@ -201,19 +201,11 @@ int main(int argc, char ** argv) {
   // Record control start time
   gettimeofday(&time0, NULL);
 
-  // Use a simple matmul routine to produce control result
   control_matmul(A, B, ctrl_matrix, a_dim1, a_dim2, b_dim2);
 
-  DEBUGGING({
-    puts("Resultant matrix (control):");
-    write_out(ctrl_matrix, a_dim1, b_dim2);
-    puts("");
-  })
-
-  // Record start time
+  // Record matmul start time
   gettimeofday(&time1, NULL);
 
-  // Perform fast matrix multiplication
   matmul(A, B, C, a_dim1, a_dim2, b_dim2);
 
   // Record finishing time
@@ -235,7 +227,9 @@ int main(int argc, char ** argv) {
   check_result(C, ctrl_matrix, a_dim1, b_dim2);
 
   DEBUGGING({
-    puts("Resultant matrix (matmul):");
+    puts("\nResultant matrix (control):");
+    write_out(ctrl_matrix, a_dim1, b_dim2);
+    puts("\nResultant matrix (matmul):");
     write_out(C, a_dim1, b_dim2);
   })
 
