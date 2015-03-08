@@ -15,6 +15,8 @@ prog_SDIR := src/
 prog_ODIR := build/
 prog_NAME := $(prog_ODIR)matmul
 prog_SRCS := $(wildcard $(prog_SDIR)*.c)
+# prog_OPTS := -march=native -funroll-loops -fno-math-errno -ffinite-math-only -flto -O3
+prog_OPTS := -march=native -funroll-loops -flto -O3
 
 define prog_HELP
 @ echo 'SYNOPSIS'
@@ -34,7 +36,7 @@ define prog_HELP
 @ echo '    distclean   Remove the generated build/ directory and all of its contents.'
 endef
 
-override CFLAGS   += -std=gnu11 -march=native -funroll-loops -flto -O3
+override CFLAGS   += -std=gnu11 $(prog_OPTS)
 override CPPFLAGS += -pthread -DNCORES=$(shell getconf _NPROCESSORS_ONLN)
 
 .PHONY: all help clean distclean
