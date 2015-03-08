@@ -15,8 +15,7 @@ prog_SDIR := src/
 prog_ODIR := build/
 prog_NAME := $(prog_ODIR)matmul
 prog_SRCS := $(wildcard $(prog_SDIR)*.c)
-# prog_OPTS := -march=native -funroll-loops -fno-math-errno -ffinite-math-only -flto -O3
-prog_OPTS := -march=native -funroll-loops -flto -O3
+prog_OPTS := -march=native -funroll-loops -fno-math-errno -ffinite-math-only -flto -O3
 
 define prog_HELP
 @ echo 'SYNOPSIS'
