@@ -47,12 +47,3 @@ This directory contains all the C code for the MatMul program.
 * `matmul.h`  - Defines macros, data- and prototypes used by the MatMul program.
 * `matmul.c`  - Contains the efficient multiplication routine.
 * `harness.c` - Creates random matrices and times the multiplication routine.
-
-##### etc/
-
-This directory contains a few files with useful information for the MatMul
-project.
-
-* `lab_description.txt` - The description of the university assignment.
-* `pcm_info.txt`        - Describes the usage of Intel's PCM software.
-* `sse_cheatsheet.txt`  - SSE intrinsics cheat sheet.
