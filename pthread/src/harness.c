@@ -71,7 +71,7 @@ void free_matrix(struct complex ** matrix) {
 */
 struct complex ** gen_random_matrix(int dim1, int dim2) {
 
-  const int random_range = 512;
+  const int random_range = 256;
   struct complex ** result;
   struct timeval seedtime;
   int seed;
@@ -156,6 +156,18 @@ long long time_diff(struct timeval * start, struct timeval *end) {
 }
 
 /*
+  Returns the number of decimal digits in the given positive number.
+*/
+int decimal_digits(unsigned long long num) {
+  int count = 0;
+  while (num > 0) {
+    num /= 10;
+    count++;
+  }
+  return count;
+}
+
+/*
   Main harness.
 */
 int main(int argc, char ** argv) {
@@ -163,7 +175,7 @@ int main(int argc, char ** argv) {
   struct complex ** A, ** B, ** C;
   struct complex ** ctrl_matrix;
   long long ctrl_time, mult_time;
-  int a_dim1, a_dim2, b_dim1, b_dim2;
+  int a_dim1, a_dim2, b_dim1, b_dim2, width;
   struct timeval time0, time1, time2;
   double speedup;
 
@@ -216,11 +228,13 @@ int main(int argc, char ** argv) {
   mult_time = time_diff(&time1, &time2);
   speedup   = (float)ctrl_time / mult_time;
 
-  printf("Control time: %lld μs\n", ctrl_time);
-  printf("Matmul  time: %lld μs\n", mult_time);
+  width = decimal_digits((ctrl_time < mult_time) ? mult_time : ctrl_time);
+
+  printf("Control time: %*lld μs\n", width, ctrl_time);
+  printf("Matmul  time: %*lld μs\n", width, mult_time);
 
   if ((mult_time > 0) && (ctrl_time > 0)) {
-    printf("Speedup:      %.2fx\n", speedup);
+    printf("Speedup:     %*.2fx\n", width, speedup);
   }
 
   // Now check that team_matmul() gives the same answer as the control

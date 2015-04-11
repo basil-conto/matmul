@@ -6,6 +6,7 @@
   This code is distributed under the BSD3 license. See AUTHORS, LICENSE.
 */
 
+#include <x86intrin.h>
 #include <pthread.h>
 #include "matmul.h"
 
@@ -32,35 +33,67 @@ void * dotProd(void * args) {
   const int j_lo = arg->j0;
   const int i_hi = (arg->i1 < _a_dim1) ? arg->i1 : _a_dim1;
   const int j_hi = (arg->j1 < _b_dim2) ? arg->j1 : _b_dim2;
+  const int k_hi = _a_dim2 - 4;
 
-  struct complex sum;
-  struct complex a, b;
+  struct complex a, b, tmp, sum;
   float a_real, a_imag, b_real, b_imag;
 
-  /*
-    The following improves cache hits.
-  */
-  // Copy row in B into a local array to improve cache performance
-  struct complex BI[_a_dim2];
+  __m128 a0, a1, b0, b1, a0xb0, a1xb1, b0xa0, b1xa1, sub, add, res;
+
+  // Copy column in B into a local array to improve cache performance
+  struct complex bcol[_a_dim2];
 
   for (int j = j_lo; (j < j_hi); j++) {
 
     // Create local B row
     for (int k = 0; (k < _a_dim2); k++) {
-      BI[k] = _B[k][j];
+      bcol[k] = _B[k][j];
     }
 
     // Perform multiplication
     for (int i = i_lo; (i < i_hi); i++) {
+
       sum = (struct complex){0.0, 0.0};
-      for (int k = 0; (k < _a_dim2); k++) {
+
+      int k = 0;
+      for ( ; (k <= k_hi); k += 4) {
+
+        a0 = _mm_loadu_ps((float *)&_A[i][k]);
+        a1 = _mm_loadu_ps((float *)&_A[i][k + 2]);
+
+        b0 = _mm_load_ps((float *)&bcol[k]);
+        b1 = _mm_load_ps((float *)&bcol[k + 2]);
+
+        a0xb0 = _mm_mul_ps(a0, b0);
+        a1xb1 = _mm_mul_ps(a1, b1);
+
+        b0 = _mm_shuffle_ps(b0, b0, _MM_SHUFFLE(2, 3, 0, 1));
+        b1 = _mm_shuffle_ps(b1, b1, _MM_SHUFFLE(2, 3, 0, 1));
+
+        b0xa0 = _mm_mul_ps(a0, b0);
+        b1xa1 = _mm_mul_ps(a1, b1);
+
+        sub = _mm_hsub_ps(a0xb0, a1xb1);
+        add = _mm_hadd_ps(b0xa0, b1xa1);
+
+        res = _mm_hadd_ps(sub, add);
+        res = _mm_hadd_ps(res, res);
+
+        _mm_storel_pi((__m64 *)&tmp, res);
+        sum.real += tmp.real;
+        sum.imag += tmp.imag;
+
+      }
+
+      for ( ; (k < _a_dim2); k++) {
         a = _A[i][k];
-        b = BI[k];
+        b =  bcol[k];
         a_real = a.real; a_imag = a.imag;
         b_real = b.real; b_imag = b.imag;
         sum.real += (a_real * b_real) - (a_imag * b_imag);
         sum.imag += (a_real * b_imag) + (a_imag * b_real);
       }
+
       _C[i][j] = sum;
     }
   }
