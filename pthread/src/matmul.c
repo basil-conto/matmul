@@ -41,7 +41,7 @@ void * dotProd(void * args) {
   __m128 a0, a1, b0, b1, a0xb0, a1xb1, b0xa0, b1xa1, sub, add, res;
 
   // Copy column in B into a local array to improve cache performance
-  struct complex bcol[_acols];
+  struct complex bcol[_acols] __attribute__ ((aligned (16)));
 
   for (int j = j_lo; (j < j_hi); j++) {
 
