@@ -6,7 +6,7 @@
   This code is distributed under the BSD3 license. See AUTHORS, LICENSE.
 */
 
-#include <pmmintrin.h>  // Optionally smmintrin.h for _mm_extract_ps()
+#include <x86intrin.h>
 #include <pthread.h>
 #include "matmul.h"
 
