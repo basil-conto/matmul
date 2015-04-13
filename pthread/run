@@ -16,21 +16,8 @@ TIME_RE='[0-9]\+'       # Regex matching execution time in milliseconds
 CTRL_RE='Control'       # Start of output line containing control time
 MULT_RE='Matmul'        # Start of output line containing matmul  time
 
-# VARIABLES --------------------------------------------------------------------
-
-cppflag=''              # Optional pre-processor flags, e.g. DEBUG
-
-repeats=8               # Default number of runs for calculating average times
-total_ctrl_time=0       # Total time for control function over all runs
-total_mult_time=0       # Total time for matmul  function over all runs
-output=''               # Target output (containing execution times)
-
-# FUNCTIONS --------------------------------------------------------------------
-
-# Prints this script's usage description in a fashion similar to a man page.
-print_usage() {
-  cat << 'EOF'
-NAME
+USAGE=\
+'NAME
     run - convenience build script for the MatMul program.
 
 SYNOPSIS
@@ -56,9 +43,18 @@ OPTIONS
 
     -r [REPS], --repeat[=REPS]
         Run MatMul repeatedly to calculate average execution times. The default
-        number of repetitions is 8.
-EOF
-}
+        number of repetitions is 8.'
+
+# VARIABLES --------------------------------------------------------------------
+
+cppflag=''              # Optional pre-processor flags, e.g. DEBUG
+
+repeats=8               # Default number of runs for calculating average times
+total_ctrl_time=0       # Total time for control function over all runs
+total_mult_time=0       # Total time for matmul  function over all runs
+output=''               # Target output (containing execution times)
+
+# FUNCTIONS --------------------------------------------------------------------
 
 # Prints the error message corresponding to, and exits with, the given status
 # code.
@@ -166,8 +162,8 @@ case "$1" in
 
 
   '' | -h | --help)
-    print_usage
-    exit
+    echo "${USAGE}"
+    exit 0
     ;;
 
 
